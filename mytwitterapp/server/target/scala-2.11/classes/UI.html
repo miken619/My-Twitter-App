@@ -1,0 +1,124 @@
+   <!DOCTYPE html>
+    <html lang="en-US">
+    <html>
+    <head>
+    <title>Mike's Final Project for CSC536</title>
+    
+    </head>
+
+    
+    <script type="text/javascript">
+
+    var socket;
+    var username;
+    if (!window.WebSocket) {
+        window.WebSocket = window.MozWebSocket;
+    }
+
+    if (window.WebSocket) {
+         socket = new WebSocket("ws://localhost:8888/websocket/"); 
+         socket.onmessage = function(event) { 
+              if(event.data.indexOf("0@") > -1){
+                 var tweet = document.getElementById('tweets');            
+                 tweet.value = event.data.substring(event.data.indexOf("@"),event.data.length) + "\n" +
+                               tweet.value;
+              }else{
+                 var outPut = document.getElementById('outPuts');
+                 outPut.value = event.data;
+	         
+              }
+         };
+         socket.onopen = function(event) { 
+              var ta = document.getElementById('responseText'); 
+              ta.value = "Web Socket opened!"; 
+         };
+         socket.onclose = function(event) { 
+              var ta = document.getElementById('responseText'); 
+              ta.value = ta.value + "Web Socket closed"; 
+              };
+    } else { 
+          alert("Your browser does not support Web Sockets.");
+    }
+    
+    function send(message) {
+         if (!window.WebSocket) { return; }
+         if (socket.readyState == WebSocket.OPEN) {
+             socket.send(message);
+         } else {
+              alert("The socket is not open.");
+         }
+    }
+   
+    function login(){
+        do{
+            username = prompt("Enter a user name to login","");
+        }while(username == null || username == "");
+        document.getElementById('username').innerHTML = "@" + username; 
+        send('0*@' + username);
+    }
+
+     function logOut(){
+        alert("You're logging out");
+        document.getElementById('username').innerHTML = ""; 
+        send('0@' + username);
+        
+    }
+
+    
+
+    function addID(identifier){
+        if((identifier) != null || (identifier) != ""){
+          var message = identifier + document.getElementById('input').value;
+         
+          send(message);
+          document.getElementById('input').value = "";
+         
+        }
+    }
+
+
+    </script>
+    <body style="background-color:lightgrey" onload="login()">
+    <h1 style="text-align:center"><strong>Mike's Twitter App</strong></h1>
+    <hr>
+    <form onsubmit="return false;" style="text-align:center">
+      <p style="display: inline" id="username"></p>
+    
+      <input type="button" value="Logout" onclick="logOut()">
+    </form>
+    <div style="float:left; margin-right:125px; margin-top:80px; margin-left:210px;">
+        <form onsubmit="return false;">
+           <input type = "text" id="input" style="width:350px;margin-left:35px;">
+           <ul style="list-style-type:none">
+           
+             <li style= "margin-bottom:5px;">Enter Tag Tweet Above(Without "#") To <input type="button" value="Tweet" onclick ="addID('0#')"></li>            
+             <li style= "margin-bottom:5px;">Enter Tweet Above To <input type="button" value="Tweet" onclick ="addID('0')"></li>
+             <li style= "margin-bottom:5px;">Enter User Name Above(Without "@") For <input type="button" value="User Messages" onclick ="addID('2@')"></li>
+             <li style= "margin-bottom:5px;">Enter Tag Above(Without "#") For <input type="button" value="Tag Messages" onclick ="addID('2#')"></li>
+             <li style= "margin-bottom:5px;">Enter User Name Above(Without "@") To <input type="button" value="Start Followings" onclick ="addID('3*@')"></li>
+             <li style= "margin-bottom:5px;">Enter User Name Above(Without "@") To <input type="button" value="Stop Followings" onclick ="addID('3$@')"></li>
+             <li style= "margin-bottom:5px;">Get <input type="button" value="Followers" onclick ="addID('1*@')"></li>
+             <li style= "margin-bottom:5px;">Get  <input type="button" value="Followings" onclick ="addID('1$@')"></li>
+             
+             </ul>  
+        </form>
+    </div>
+    <br>
+    <div style="float:left; margin-right: 105px">
+        
+           
+           <h3>Output</h3>
+           <textarea id="outPuts" style="width: 300px; height:200px;"></textarea>
+        
+    </div>
+    
+    <div style="float:left">
+        
+           
+           <h3>Tweets</h3>
+           <textarea id="tweets" style="width: 300px; height:200px;"></textarea>
+        
+    </div>
+   
+    </body>
+    </html>
